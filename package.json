@@ -1,0 +1,29 @@
+{
+	"name": "userscripts",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"lint": "npx eslint --stats .",
+		"prettier": "npx prettier . --write"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/h-junior/userscripts.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"bugs": {
+		"url": "https://github.com/h-junior/userscripts/issues"
+	},
+	"homepage": "https://github.com/h-junior/userscripts#readme",
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.2.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-userscripts": "^0.5.6",
+		"globals": "^17.5.0",
+		"prettier": "3.8.3"
+	}
+}
