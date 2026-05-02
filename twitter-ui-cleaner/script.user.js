@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter UI cleaner
 // @namespace    https://hjunior.com
-// @version      1.0
+// @version      1.1
 // @description  Cleans the Twitter UI
 // @icon         https://raw.githubusercontent.com/h-junior/userscripts/refs/heads/main/twitter-ui-cleaner/icon.png
 // @author       hjunior
@@ -17,7 +17,9 @@
 (function () {
 	"use strict";
 
-	const TARGETS = {
+	const NAV_BAR_XPATH = "//*[@data-testid='AppTabBar_Home_Link']/parent::*";
+
+	const NAV_BAR_TARGETS = {
 		GROK_BUTTON: "//*[@href='/i/grok']",
 		CREATOR_STUDIO_BUTTON: "//*[@href='/i/jf/creators/studio']",
 		PREMIUM_BUTTON: "//*[@href='/i/premium_sign_up']"
@@ -35,42 +37,48 @@
 		).singleNodeValue;
 	}
 
-	function findTarget(targetXPath) {
-		try {
-			const targetElement = queryXPath(targetXPath);
-			if (targetElement) return targetElement;
-		} catch (err) {
-			console.warn(`XPath ${targetXPath} failed: ${err}`);
-		}
-		return null;
-	}
+	function clearNavBar() {
+		console.groupCollapsed("[Twitter UI cleaner] Clearing nav bar");
 
-	function clearUi() {
-		console.groupCollapsed("[Twitter UI cleaner] Trying to clear UI");
-		for (const [targetId, targetXPath] of Object.entries(TARGETS)) {
-			console.log(`Searching for target ${targetId}`);
-			const targetElement = findTarget(targetXPath);
+		for (const [targetId, targetXPath] of Object.entries(NAV_BAR_TARGETS)) {
+			console.log(`Searching for nav bar target ${targetId}`);
+			const targetElement = queryXPath(targetXPath);
 
 			if (!targetElement) {
-				console.log(`Target ${targetId} not found`);
+				console.log(`Nav bar target ${targetId} not found`);
 			} else {
-				console.log(`Target ${targetId} found`);
+				console.log(`Nav bar target ${targetId} found`);
 				if (targetElement.getAttribute("style") !== HIDE_STYLE) {
 					targetElement.setAttribute("style", HIDE_STYLE);
-					delete TARGETS[targetId];
 				}
 			}
 		}
 		console.groupEnd();
-		if (Object.entries(TARGETS).length === 0) {
-			console.info("[Twitter UI cleaner] Disconnecting observer");
-			observer.disconnect();
+	}
+
+	function searchForNavBar() {
+		console.log("[Twitter UI cleaner] Searching for the nav bar");
+		const navBarElement = queryXPath(NAV_BAR_XPATH);
+
+		if (navBarElement) {
+			console.log(
+				"[Twitter UI cleaner] Nav bar found, setting up nav bar observer"
+			);
+			clearNavBar();
+
+			const observer = new MutationObserver(() => clearNavBar());
+			observer.observe(navBarElement, {
+				childList: true,
+				subtree: true
+			});
+
+			setupObserver.disconnect();
 		}
 	}
 
-	const observer = new MutationObserver(() => clearUi());
+	const setupObserver = new MutationObserver(() => searchForNavBar());
 
-	observer.observe(document.body, {
+	setupObserver.observe(document.body, {
 		childList: true,
 		subtree: true
 	});
